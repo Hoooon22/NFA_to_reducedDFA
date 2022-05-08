@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.810.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NFA_to_reducedDFA", "NFA_to_reducedDFA\NFA_to_reducedDFA.csproj", "{24851642-F4E9-437C-AE0B-A2429EF11CC9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|anycpu = Debug|anycpu
+		Release|anycpu = Release|anycpu
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{24851642-F4E9-437C-AE0B-A2429EF11CC9}.Debug|anycpu.ActiveCfg = Debug|anycpu
+		{24851642-F4E9-437C-AE0B-A2429EF11CC9}.Debug|anycpu.Build.0 = Debug|anycpu
+		{24851642-F4E9-437C-AE0B-A2429EF11CC9}.Release|anycpu.ActiveCfg = Release|anycpu
+		{24851642-F4E9-437C-AE0B-A2429EF11CC9}.Release|anycpu.Build.0 = Release|anycpu
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2AB0437E-0FAB-4E55-82F4-58198D49EE9D}
+	EndGlobalSection
+EndGlobal
