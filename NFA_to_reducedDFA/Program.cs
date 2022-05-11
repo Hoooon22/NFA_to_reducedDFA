@@ -38,6 +38,7 @@ namespace NFA_to_reducedDFA
         }
         public void Prinf_nfa()
         {
+            Console.WriteLine("\nNFA => ");
             foreach (var pair1 in nfa_dic)
             {
                 Console.Write("Key: {0}, ", pair1.Key);
