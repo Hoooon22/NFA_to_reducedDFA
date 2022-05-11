@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NFA_to_reducedDFA
 {
@@ -64,8 +65,8 @@ namespace NFA_to_reducedDFA
 
     class DFA
     {
-        private Dictionary<string, Dictionary<string, string>> dfa_dic = new Dictionary<string, Dictionary<string, string>>();
-        public string first_state; // first state
+        public Dictionary<List<string>, Dictionary<string, List<string>>> dfa_dic = new Dictionary<List<string>, Dictionary<string, List<string>>>();
+        public string first_state; // first states
         public List<string[]> final_state = new List<string[]>(); // final states
 
         // NFA to DFA
@@ -89,20 +90,37 @@ namespace NFA_to_reducedDFA
             }
 
             // 4. reconstruct fa + 1. Q' = 2^Q
-            // 모든 키의 값들이 채워졌을 경우 종료
+            List<List<string>> remaining_state = new List<List<string>>(); // list of remaining state
             // 4.1. First State
-            dfa_dic.Add(first_state, null); // 1.
-            Dictionary<string, string> dfa_key = new Dictionary<string, string>();
-            foreach (var nfa_value in nfa.nfa_dic[first_state])
+            List<string> first_list = new List<string>();
+            first_list.Add(first_state);
+            dfa_dic.Add(first_list, null); // 1. Q' = 2^Q
+            
+            Dictionary<string, List<string>> dfa_key = new Dictionary<string, List<string>>();
+            foreach (var nfa_value in nfa.nfa_dic[first_state]) // 첫 번째 state 구성
             {
-                string str = String.Join("", nfa_value.Value); // combined value (ex. A, B -> AB)
-                dfa_key.Add(nfa_value.Key , str);
-                if (!dfa_dic.ContainsKey(str)) // if combined value is not exist in dfa_dic's Key
+                List<string> value_list = new List<string>();
+                foreach(var v in nfa_value.Value)
                 {
-                    dfa_dic.Add(str, null); // add state
+                    value_list.Add(v);
+                }
+                dfa_key.Add(nfa_value.Key, value_list);
+                if (!dfa_dic.ContainsKey(value_list)) // if combined value is not exist in dfa_dic's Key
+                {
+                    remaining_state.Add(value_list);
+                    dfa_dic.Add(value_list, null); // add state
                 }
             }
-            dfa_dic[first_state] = dfa_key; // update key (first state)
+            dfa_dic[first_list] = dfa_key; // update key (first state)
+
+            // 4.2 Other State
+            while (remaining_state.Any()) // 모든 키의 값들이 state로 채워졌을 경우 종료
+            {
+                foreach (var s in remaining_state[0]) // A, B
+                {
+
+                }
+            }
 
         }
     }
