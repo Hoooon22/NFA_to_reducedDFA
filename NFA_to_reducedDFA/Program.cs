@@ -108,7 +108,6 @@ namespace NFA_to_reducedDFA
                 if (!dfa_dic.ContainsKey(value_list)) // if combined value is not exist in dfa_dic's Key
                 {
                     remaining_state.Add(value_list);
-                    dfa_dic.Add(value_list, null); // add state
                 }
             }
             dfa_dic[first_list] = dfa_key; // update key (first state)
@@ -116,10 +115,24 @@ namespace NFA_to_reducedDFA
             // 4.2 Other State
             while (remaining_state.Any()) // 모든 키의 값들이 state로 채워졌을 경우 종료
             {
-                foreach (var s in remaining_state[0]) // A, B
-                {
+                dfa_dic.Add(remaining_state[0], null); // add state
+                dfa_key.Clear(); // init dfa_key
 
+                foreach (var t in nfa.nfa_dic.Keys) // transition
+                {
+                    List<string> value_list = new List<string>();
+                    foreach (var s in remaining_state[0]) // state
+                    {
+                        foreach (var str in nfa.nfa_dic[s][t]) // add reaching state
+                        {
+                            value_list.Add(str);
+                        }
+                    }
+                    dfa_key.Add(t, value_list);
                 }
+
+                dfa_dic[remaining_state[0]] = dfa_key; // match key
+                remaining_state.RemoveAt(0); // remove remaining_state
             }
 
         }
