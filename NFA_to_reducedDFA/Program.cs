@@ -118,7 +118,7 @@ namespace NFA_to_reducedDFA
                 dfa_dic.Add(remaining_state[0], null); // add state
                 dfa_key.Clear(); // init dfa_key
 
-                foreach (var t in nfa.nfa_dic.Keys) // transition
+                foreach (var t in nfa.nfa_dic[nfa.first_state].Keys) // transition
                 {
                     List<string> value_list = new List<string>();
                     foreach (var s in remaining_state[0]) // state
@@ -134,7 +134,32 @@ namespace NFA_to_reducedDFA
                 dfa_dic[remaining_state[0]] = dfa_key; // match key
                 remaining_state.RemoveAt(0); // remove remaining_state
             }
+            Console.WriteLine("NFA to DFA Done.");
+        }
 
+        public void Prinf_dfa()
+        {
+            Console.WriteLine("\nDFA => ");
+            foreach (var pair1 in dfa_dic)
+            {
+                Console.Write("Key: ");
+                foreach (var key1 in pair1.Key)
+                {
+                    Console.Write(key1);
+                }
+
+                Console.Write(", Value: ");
+                foreach (var pair2 in pair1.Value)
+                {
+                    Console.Write("{0}-[", pair2.Key);
+                    foreach (var key2 in pair2.Value)
+                    {
+                        Console.Write(key2);
+                    }
+                    Console.Write("] ");
+                }
+                Console.WriteLine();
+            }
         }
     }
 
@@ -145,6 +170,10 @@ namespace NFA_to_reducedDFA
             NFA nfa = new NFA();
             nfa.Enter_nfa();
             nfa.Prinf_nfa();
+
+            DFA dfa = new DFA();
+            dfa.NFAtoDFA(nfa);
+            dfa.Prinf_dfa();
         }
     }
 }
