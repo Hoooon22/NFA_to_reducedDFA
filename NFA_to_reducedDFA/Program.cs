@@ -56,7 +56,7 @@ namespace NFA_to_reducedDFA
 
                 foreach (var pair2 in pair1.Value)
                 {
-                    Console.Write("{0}-[{1}] ", pair2.Key, String.Join(", ", pair2.Value)); ;
+                    Console.Write("{0}-[{1}] ", pair2.Key, String.Join(", ", pair2.Value));
                 }
                 Console.WriteLine();
             }
@@ -105,7 +105,7 @@ namespace NFA_to_reducedDFA
                     value_list.Add(v);
                 }
                 dfa_key.Add(nfa_value.Key, value_list);
-                if (!dfa_dic.ContainsKey(value_list)) // if combined value is not exist in dfa_dic's Key
+                if (String.Join("", value_list) != first_state) // if combined value is not exist in dfa_dic's Key
                 {
                     remaining_state.Add(value_list);
                 }
@@ -113,22 +113,57 @@ namespace NFA_to_reducedDFA
             dfa_dic[first_list] = dfa_key; // update key (first state)
 
             // 4.2 Other State
-            while (remaining_state.Any()) // 모든 키의 값들이 state로 채워졌을 경우 종료
+            while (remaining_state.Count != 0) // 모든 키의 값들이 state로 채워졌을 경우 종료
             {
-                dfa_dic.Add(remaining_state[0], null); // add state
-                dfa_key.Clear(); // init dfa_key
+                if (!dfa_dic.ContainsKey(remaining_state[0])) // if combined value is not exist in dfa_dic's Key
+                {
+                    dfa_dic.Add(remaining_state[0], null); // add state
+                }
+
+                foreach (var r in remaining_state[0])
+                {
+                    Console.Write(r);
+                }
+                Console.WriteLine();
 
                 foreach (var t in nfa.nfa_dic[nfa.first_state].Keys) // transition
                 {
+                    dfa_key.Clear(); // init dfa_key
                     List<string> value_list = new List<string>();
+
                     foreach (var s in remaining_state[0]) // state
                     {
-                        foreach (var str in nfa.nfa_dic[s][t]) // add reaching state
+                        if (s != "")
                         {
-                            value_list.Add(str);
+                            foreach (var str in nfa.nfa_dic[s][t]) // add reaching state
+                            {
+                                if (!value_list.Contains(str))
+                                {
+                                    value_list.Add(str);
+                                }
+                            }
                         }
                     }
                     dfa_key.Add(t, value_list);
+
+                    //if (!dfa_dic.ContainsKey(value_list)) // if combined value is not exist in dfa_dic's Key
+                    //{
+                    //    remaining_state.Add(value_list);
+                    //}
+
+                    // 위 방법 대체
+                    int n_count = 0;
+                    foreach (var key in dfa_dic.Keys)
+                    {
+                        if (String.Join("", value_list) == String.Join("", key)) // if combined value is not exist in dfa_dic's Key
+                        {
+                            n_count++;
+                        }
+                    }
+                    if (n_count == 0)
+                    {
+                        remaining_state.Add(value_list);
+                    }
                 }
 
                 dfa_dic[remaining_state[0]] = dfa_key; // match key
@@ -151,12 +186,7 @@ namespace NFA_to_reducedDFA
                 Console.Write(", Value: ");
                 foreach (var pair2 in pair1.Value)
                 {
-                    Console.Write("{0}-[", pair2.Key);
-                    foreach (var key2 in pair2.Value)
-                    {
-                        Console.Write(key2);
-                    }
-                    Console.Write("] ");
+                    Console.Write("{0}-[{1}] ", pair2.Key, String.Join("", pair2.Value));
                 }
                 Console.WriteLine();
             }
