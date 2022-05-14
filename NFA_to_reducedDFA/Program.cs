@@ -184,9 +184,9 @@ namespace NFA_to_reducedDFA
                 }
 
                 Console.Write(", Value: ");
-                foreach (var pair2 in pair1.Value)
+                foreach (var pair2 in pair1.Value.Keys)
                 {
-                    Console.Write("{0}-[{1}] ", pair2.Key, String.Join("", pair2.Value));
+                    Console.Write("{0}-[{1}] ", pair2, String.Join("", pair1.Value.Values));
                 }
                 Console.WriteLine();
             }
