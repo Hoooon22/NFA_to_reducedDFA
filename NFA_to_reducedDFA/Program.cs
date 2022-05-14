@@ -10,7 +10,7 @@ namespace NFA_to_reducedDFA
         public int s; // number of states
         public int t; // number of transitions
         public string first_state; // first state
-        public string[] final_state; // final states
+        public List<string> final_state = new List<string>(); // final states
 
         public void Enter_nfa()
         {
@@ -45,7 +45,11 @@ namespace NFA_to_reducedDFA
 
             // Enter Final state
             Console.Write("final states: ");
-            final_state = Console.ReadLine().Split(' ');
+            string[] tmp = Console.ReadLine().Split(' ');
+            foreach (var str in tmp)
+            {
+                final_state.Add(str);
+            }
         }
 
         public void Prinf_nfa()
@@ -67,8 +71,17 @@ namespace NFA_to_reducedDFA
     class DFA
     {
         public Dictionary<List<string>, Dictionary<string, List<string>>> dfa_dic = new Dictionary<List<string>, Dictionary<string, List<string>>>();
+        public Dictionary<List<string>, Dictionary<string, List<string>>> min_dfa_dic = new Dictionary<List<string>, Dictionary<string, List<string>>>();
         public string first_state; // first states
-        public List<string[]> final_state = new List<string[]>(); // final states
+        public List<string> final_state = new List<string>(); // final states
+
+        public Dictionary<List<string>, Dictionary<string, List<string>>> GetDFA(List<string> key)
+        {
+            Dictionary<List<string>, Dictionary<string, List<string>>> dic = new Dictionary<List<string>, Dictionary<string, List<string>>>();
+            dic.Add(key, dfa_dic[key]);
+
+            return dic;
+        }
 
         // NFA to DFA
         public void NFAtoDFA(NFA nfa)
@@ -79,15 +92,9 @@ namespace NFA_to_reducedDFA
             first_state = nfa.first_state;
 
             // 3. F' = including final state
-            foreach (var nfa_s in nfa.nfa_dic)
+            foreach (var f_str in nfa.final_state)
             {
-                foreach (var value_dic in nfa_s.Value.Values)
-                {
-                    if (Array.IndexOf(value_dic, nfa.final_state) > -1) // if contain nfa final state
-                    {
-                        final_state.Add(value_dic); // add final states
-                    }
-                }
+                final_state.Add(f_str);
             }
 
             // 4. reconstruct fa + 1. Q' = 2^Q
@@ -121,12 +128,6 @@ namespace NFA_to_reducedDFA
                 {
                     dfa_dic.Add(remaining_state[0], null); // add state
                 }
-
-                foreach (var r in remaining_state[0])
-                {
-                    Console.Write(r);
-                }
-                Console.WriteLine();
 
                 foreach (var t in nfa.nfa_dic[nfa.first_state].Keys) // transition
                 {
@@ -180,10 +181,118 @@ namespace NFA_to_reducedDFA
             Console.WriteLine("NFA to DFA Done.");
         }
 
+        // Minimization of DFA
+        public void Minimization_DFA()
+        {
+            // 1. partition if is final state or not
+            Dictionary<List<string>, Dictionary<string, List<string>>> final_dfa = new Dictionary<List<string>, Dictionary<string, List<string>>>();
+            Dictionary<List<string>, Dictionary<string, List<string>>> nonfinal_dfa = new Dictionary<List<string>, Dictionary<string, List<string>>>();
+            foreach (var key in dfa_dic.Keys)
+            {
+                if (key == final_state)
+                {
+                    final_dfa.Add(key, dfa_dic[key]);
+                }
+                else
+                {
+                    nonfinal_dfa.Add(key, dfa_dic[key]);
+                }
+            }
+
+            // 2. Find the minimum state finite automaton
+            List<List<string>> remaining_key = new List<List<string>>();
+            for (int i = 0; i < dfa_dic.Count() - 1; i++)
+            {
+                List<string> compare_state_i = new List<string>();
+                foreach (var state in nonfinal_dfa[nonfinal_dfa.Keys.ElementAt(i)].Values)
+                {
+                    foreach (var str in state)
+                    {
+                        if (!compare_state_i.Contains(str))
+                        {
+                            compare_state_i.Add(str);
+                        }
+                    }
+                }
+                compare_state_i.Sort(); // 정렬해서 비교하기 위하여
+
+                for (int j = i + 1; j < nonfinal_dfa.Count(); j++)
+                {
+                    List<string> compare_state_j = new List<string>();
+                    foreach (var state in nonfinal_dfa[nonfinal_dfa.Keys.ElementAt(j)].Values)
+                    {
+                        foreach (var str in state)
+                        {
+                            if (!compare_state_j.Contains(str))
+                            {
+                                compare_state_j.Add(str);
+                            }
+                        }
+                    }
+                    compare_state_j.Sort(); // 정렬해서 비교하기 위하여
+
+                    if (compare_state_i.SequenceEqual(compare_state_j)) // compare
+                    {
+                        List<string> key = new List<string>();
+                        key.AddRange(nonfinal_dfa.Keys.ElementAt(i));
+                        remaining_key.Add(nonfinal_dfa.Keys.ElementAt(i));
+                        key.AddRange(nonfinal_dfa.Keys.ElementAt(j));
+                        remaining_key.Add(nonfinal_dfa.Keys.ElementAt(j));
+                        key = key.Distinct().ToList(); // 중복 제거
+
+                        if (!min_dfa_dic.ContainsKey(key))
+                        {
+                            Dictionary<string, List<string>> low_key = new Dictionary<string, List<string>>();
+                            low_key.Add(nonfinal_dfa[nonfinal_dfa.Keys.ElementAt(0)].Keys.ElementAt(0), compare_state_i);
+
+                            min_dfa_dic.Add(key, low_key);
+                        }
+                        else if (min_dfa_dic[key].Count() != dfa_dic[final_state].Count())
+                        {
+                            Dictionary<string, List<string>> low_key = new Dictionary<string, List<string>>();
+                            min_dfa_dic[key].Add(nonfinal_dfa[nonfinal_dfa.Keys.ElementAt(min_dfa_dic[key].Count())].Keys.ElementAt(0), compare_state_i);
+                        }
+                    }
+                }
+            }
+
+            // 3. combined
+            foreach (var n_dfa in dfa_dic)
+            {
+                if (!remaining_key.Contains(n_dfa.Key))
+                {
+                    min_dfa_dic.Add(n_dfa.Key, n_dfa.Value);
+                }
+            }
+
+            var list = min_dfa_dic.Keys.ToList();
+            //list.Sort();
+        }
+
         public void Prinf_dfa()
         {
             Console.WriteLine("\nDFA => ");
             foreach (var pair1 in dfa_dic)
+            {
+                Console.Write("Key: ");
+                foreach (var key1 in pair1.Key)
+                {
+                    Console.Write(key1);
+                }
+
+                Console.Write(", Value: ");
+                foreach (var pair2 in pair1.Value.Keys)
+                {
+                    Console.Write("{0}-[{1}] ", pair2, String.Join("", pair1.Value[pair2]));
+                }
+                Console.WriteLine();
+            }
+        }
+
+        public void Prinf_min_dfa()
+        {
+            Console.WriteLine("\nMinimization DFA => ");
+            foreach (var pair1 in min_dfa_dic)
             {
                 Console.Write("Key: ");
                 foreach (var key1 in pair1.Key)
@@ -212,6 +321,8 @@ namespace NFA_to_reducedDFA
             DFA dfa = new DFA();
             dfa.NFAtoDFA(nfa);
             dfa.Prinf_dfa();
+            dfa.Minimization_DFA();
+            dfa.Prinf_min_dfa();
         }
     }
 }
