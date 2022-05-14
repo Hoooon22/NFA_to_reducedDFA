@@ -161,6 +161,13 @@ namespace NFA_to_reducedDFA
                             n_count++;
                         }
                     }
+                    foreach (var re_state in remaining_state)
+                    {
+                        if (String.Join("", value_list) == String.Join("", re_state))
+                        {
+                            n_count++;
+                        }
+                    }
                     if (n_count == 0)
                     {
                         remaining_state.Add(value_list);
