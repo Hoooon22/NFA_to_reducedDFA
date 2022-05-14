@@ -33,6 +33,7 @@ namespace NFA_to_reducedDFA
                     string transition = Console.ReadLine();
                     Console.Write("next states from state " + state + " through " + transition + ": ");
                     string next_state = Console.ReadLine();
+
                     t_dic.Add(transition, next_state.Split(' '));
                 }
 
@@ -115,6 +116,7 @@ namespace NFA_to_reducedDFA
             // 4.2 Other State
             while (remaining_state.Count != 0) // 모든 키의 값들이 state로 채워졌을 경우 종료
             {
+                Dictionary<string, List<string>> dfa_key2 = new Dictionary<string, List<string>>();
                 if (!dfa_dic.ContainsKey(remaining_state[0])) // if combined value is not exist in dfa_dic's Key
                 {
                     dfa_dic.Add(remaining_state[0], null); // add state
@@ -128,7 +130,6 @@ namespace NFA_to_reducedDFA
 
                 foreach (var t in nfa.nfa_dic[nfa.first_state].Keys) // transition
                 {
-                    dfa_key.Clear(); // init dfa_key
                     List<string> value_list = new List<string>();
 
                     foreach (var s in remaining_state[0]) // state
@@ -144,7 +145,7 @@ namespace NFA_to_reducedDFA
                             }
                         }
                     }
-                    dfa_key.Add(t, value_list);
+                    dfa_key2.Add(t, value_list);
 
                     //if (!dfa_dic.ContainsKey(value_list)) // if combined value is not exist in dfa_dic's Key
                     //{
@@ -166,7 +167,7 @@ namespace NFA_to_reducedDFA
                     }
                 }
 
-                dfa_dic[remaining_state[0]] = dfa_key; // match key
+                dfa_dic[remaining_state[0]] = dfa_key2; // match key
                 remaining_state.RemoveAt(0); // remove remaining_state
             }
             Console.WriteLine("NFA to DFA Done.");
@@ -186,7 +187,7 @@ namespace NFA_to_reducedDFA
                 Console.Write(", Value: ");
                 foreach (var pair2 in pair1.Value.Keys)
                 {
-                    Console.Write("{0}-[{1}] ", pair2, String.Join("", pair1.Value.Values));
+                    Console.Write("{0}-[{1}] ", pair2, String.Join("", pair1.Value[pair2]));
                 }
                 Console.WriteLine();
             }
